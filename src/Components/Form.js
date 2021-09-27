@@ -48,12 +48,13 @@ export class Form extends Component {
                 })
                 .then(res => {
                     const places = res.data;
+                    let placeArray = [];
                     this.setState({ places });
-                    console.log(places); 
-                    for (let i = 0; i < places.length; i++) { // why doesn't this work?? 
-                        console.log(places.Places[i].Placename);
+                    console.log(places);
+                    for (let i = 0; i < places.Places.length; i++) { // this works for looping through the object 
+                        placeArray = Object.values(places.Places[i]);
+                        console.log(placeArray[1]); // this gets the placename 
                     }
-                    console.log(places.Places[0].PlaceName); // testing access of properties, need to write loop and populate datalist using map()
                 });
                 event.preventDefault();
         }
@@ -61,7 +62,7 @@ export class Form extends Component {
     }
 
     // onClick ?
-    handleSubmit = (event) => {
+    handleSubmit = (event) => { 
         var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.city}/anywhere/anytime`
         axios.get(url, 
         {
