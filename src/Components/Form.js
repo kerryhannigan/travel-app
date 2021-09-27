@@ -50,6 +50,9 @@ export class Form extends Component {
                     const places = res.data;
                     this.setState({ places });
                     console.log(places); 
+                    for (let i = 0; i < places.length; i++) { // why doesn't this work?? 
+                        console.log(places.Places[i].Placename);
+                    }
                     console.log(places.Places[0].PlaceName); // testing access of properties, need to write loop and populate datalist using map()
                 });
                 event.preventDefault();
