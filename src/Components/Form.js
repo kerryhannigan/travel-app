@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
-import axios from 'axios'
+import React, { Component } from 'react';
+import axios from 'axios';
 
 export class Form extends Component {
+
 
     constructor(props) {
         super(props)
@@ -10,7 +11,8 @@ export class Form extends Component {
              budget: '',
              chooseBudget: '',
              city: '',
-             flights: []
+             flights: [],
+             places: []
         }
     }
 
@@ -26,13 +28,36 @@ export class Form extends Component {
         })
     }
 
+    // get some cities from search 
     handleCityChange = (event) => {
         this.setState({
             city: event.target.value
         })
+        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
+        if (this.state.city.length > 0) { // search query must be 2 characters in length
+            axios.get(url, 
+                {
+                    params: {
+                        query: this.state.city
+                    },
+                    headers: {
+                        'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
+                        'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
+                        // in the future, don't hardcode API key into frontend 
+                    }
+                })
+                .then(res => {
+                    const places = res.data;
+                    this.setState({ places });
+                    console.log(places); 
+                    console.log(places.Places[0].PlaceName); // testing access of properties, need to write loop and populate datalist using map()
+                });
+                event.preventDefault();
+        }
+
     }
 
-    // could have used onClick instead
+    // onClick ?
     handleSubmit = (event) => {
         var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.city}/anywhere/anytime`
         axios.get(url, 
@@ -55,7 +80,7 @@ export class Form extends Component {
         return (
             <form onSubmit={this.handleSubmit}>
                 <div>
-                    <label>Departure Airport: </label>
+                    <label>Departure Airport (Enter a City, State, or Airport Code): </label>
                     <input
                     type='text' 
                     value={this.state.city}
@@ -90,3 +115,6 @@ export class Form extends Component {
 }
 
 export default Form
+
+
+// make button say "Show me flights to anywhere, or select Enter a destination" --> "Enter a destination"

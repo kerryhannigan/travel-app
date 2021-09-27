@@ -1,14 +1,10 @@
 import './App.css';
-import Navbar from './Navbar';
-import Home from './Home';
-import Form from './Form';
-import Axios from 'axios';
+import Navbar from './Components/Navbar';
+import Home from './Components/Home';
+import Form from './Components/Form';
 
 function App() {
 
-  const getFlights = () => {
-    Axios.get()
-  }
 
   return (
     <div className="App">
@@ -20,5 +16,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
