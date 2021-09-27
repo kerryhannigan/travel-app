@@ -12,7 +12,7 @@ export class Form extends Component {
              chooseBudget: '',
              city: '',
              flights: [],
-             places: []
+             placeName: []
         }
     }
 
@@ -49,12 +49,15 @@ export class Form extends Component {
                 .then(res => {
                     const places = res.data;
                     let placeArray = [];
-                    this.setState({ places });
+                    let placeName = [];
                     console.log(places);
-                    for (let i = 0; i < places.Places.length; i++) {
+                    for (let i = 0; i < places.Places.length; i++) { // test getting the placename
                         placeArray = Object.values(places.Places[i]);
-                        console.log(placeArray[1]); // this gets the placename, which will populate the dropdown
+                        placeName[i] = placeArray[1]; // this gets the placename, which will populate the dropdown
+                        console.log(placeName[i]);
                     }
+                    this.setState({ placeName });
+
                 });
                 event.preventDefault();
         }
@@ -87,9 +90,16 @@ export class Form extends Component {
                     <label>Departure Airport (Enter a City, State, or Airport Code): </label>
                     <input
                     type='text' 
+                    list="places-list"
                     value={this.state.city}
                     onChange={this.handleCityChange}
+                    
                     />
+                    <datalist id="places-list">
+                        {this.state.placeName.map((item, key) =>
+                            <option key={key} value={item} />
+                        )}
+                    </datalist>
                 </div>
                 <div>
                     <label>Budget: </label>
