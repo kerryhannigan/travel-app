@@ -51,9 +51,9 @@ export class Form extends Component {
                     let placeArray = [];
                     this.setState({ places });
                     console.log(places);
-                    for (let i = 0; i < places.Places.length; i++) { // this works for looping through the object 
+                    for (let i = 0; i < places.Places.length; i++) {
                         placeArray = Object.values(places.Places[i]);
-                        console.log(placeArray[1]); // this gets the placename 
+                        console.log(placeArray[1]); // this gets the placename, which will populate the dropdown
                     }
                 });
                 event.preventDefault();
