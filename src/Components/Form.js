@@ -3,6 +3,7 @@ import axios from 'axios';
 
 export class Form extends Component {
 
+    timeout=null;
 
     constructor(props) {
         super(props)
@@ -28,43 +29,49 @@ export class Form extends Component {
         })
     }
 
-    // get some cities from search 
     handleCityChange = (event) => {
-        this.setState({
-            city: event.target.value
-        })
-        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
-        if (this.state.city.length > 0) { // search query must be 2 characters in length
-            axios.get(url, 
-                {
-                    params: {
-                        query: this.state.city
-                    },
-                    headers: {
-                        'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-                        'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
-                        // in the future, don't hardcode API key into frontend 
-                    }
-                })
-                .then(res => {
-                    const places = res.data;
-                    let placeArray = [];
-                    let placeName = [];
-                    console.log(places);
-                    for (let i = 0; i < places.Places.length; i++) { // test getting the placename
-                        placeArray = Object.values(places.Places[i]);
-                        placeName[i] = placeArray[1]; // this gets the placename, which will populate the dropdown
-                        console.log(placeName[i]);
-                    }
-                    this.setState({ placeName });
-
-                });
-                event.preventDefault();
+        clearTimeout(this.timeout);
+        if (event.target.value.length < 1) {
+            return this.setState(this.state.city);
         }
-
+        else {
+            this.setState({
+                city: event.target.value
+            })
+            if (event.target.value.length > 1) { // search query must be 2 characters in length
+                this.timeout = setTimeout(this.search, 1000);
+                event.preventDefault();
+            }
+        }
     }
 
-    // onClick ?
+    search = () => {
+        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
+        axios.get(url, 
+            {
+                params: {
+                    query: this.state.city
+                },
+                headers: {
+                    'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
+                    'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
+                    // in the future, don't hardcode API key into frontend 
+                }
+            })
+            .then(res => {
+                const places = res.data;
+                let placeArray = [];
+                let placeName = [];
+                console.log(places);
+                for (let i = 0; i < places.Places.length; i++) { // test getting the placename
+                    placeArray = Object.values(places.Places[i]);
+                    placeName[i] = placeArray[1]; // this gets the placename, which will populate the dropdown
+                    console.log(placeName[i]);
+                }
+                this.setState({ placeName });
+            });
+    }
+
     handleSubmit = (event) => { 
         var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.city}/anywhere/anytime`
         axios.get(url, 
@@ -81,7 +88,8 @@ export class Form extends Component {
             console.log(flights);
         });
         event.preventDefault();
-    }    
+    }   
+
 
     render() {
         return (
@@ -93,7 +101,6 @@ export class Form extends Component {
                     list="places-list"
                     value={this.state.city}
                     onChange={this.handleCityChange}
-                    
                     />
                     <datalist id="places-list">
                         {this.state.placeName.map((item, key) =>
