@@ -31,17 +31,12 @@ export class Form extends Component {
 
     handleCityChange = (event) => {
         clearTimeout(this.timeout);
-        if (event.target.value.length < 1) {
-            return this.setState(this.state.city);
-        }
-        else {
-            this.setState({
-                city: event.target.value
-            })
-            if (event.target.value.length > 1) { // search query must be 2 characters in length
-                this.timeout = setTimeout(this.search, 1000);
-                event.preventDefault();
-            }
+        this.setState({
+            city: event.target.value
+        })
+        if (event.target.value.length > 1) { // search query must be 2 characters in length
+            this.timeout = setTimeout(this.search, 1000);
+            event.preventDefault();
         }
     }
 
