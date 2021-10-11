@@ -3,8 +3,6 @@ import axios from 'axios';
 
 export class Form extends Component {
 
-    timeout=null;
-
     constructor(props) {
         super(props)
     
@@ -13,7 +11,8 @@ export class Form extends Component {
              chooseBudget: '',
              city: '',
              flights: [],
-             placeName: []
+             placeName: [],
+             airportCode: []
         }
     }
 
@@ -29,42 +28,53 @@ export class Form extends Component {
         })
     }
 
+    timeout = null
+
+    // get some cities from search 
     handleCityChange = (event) => {
-        clearTimeout(this.timeout);
+        clearTimeout(this.timeout)
+
         this.setState({
             city: event.target.value
         })
-        if (event.target.value.length > 1) { // search query must be 2 characters in length
-            this.timeout = setTimeout(this.search, 1000);
-            event.preventDefault();
-        }
+
+        this.timeout = setTimeout(() => {
+            var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
+            if (this.state.city.length > 0) {
+                axios.get(url, 
+                    {
+                        params: {
+                            query: this.state.city
+                        },
+                        headers: {
+                            'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
+                            'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
+                            // in the future, don't hardcode API key into frontend 
+                        }
+                    })
+                    .then(res => {
+                        const places = res.data;
+                        let placeArray = [];
+                        let placeName = [];
+                        console.log(places);
+                        for (let i = 0; i < places.Places.length; i++) { // test getting the placename
+                            placeArray = Object.values(places.Places[i]);
+                            placeName[i] = placeArray[1]; // this gets the placename, which will populate the dropdown
+                            console.log(placeName[i]);
+                            console.log(placeArray[4]) // placeArray[4] is the airport code
+                        }
+                        this.setState({ placeName });
+                    });
+                    event.preventDefault();
+            }
+        }, 500)
     }
 
-    search = () => {
-        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
-        axios.get(url, 
-            {
-                params: {
-                    query: this.state.city
-                },
-                headers: {
-                    'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-                    'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
-                    // in the future, don't hardcode API key into frontend 
-                }
-            })
-            .then(res => {
-                const places = res.data;
-                let placeArray = [];
-                let placeName = [];
-                console.log(places);
-                for (let i = 0; i < places.Places.length; i++) { // test getting the placename
-                    placeArray = Object.values(places.Places[i]);
-                    placeName[i] = placeArray[1]; // this gets the placename, which will populate the dropdown
-                    console.log(placeName[i]);
-                }
-                this.setState({ placeName });
-            });
+    selectionMade = (event) => {
+        this.setState({
+            city: event.target.value
+        })
+        console.log("Value is:", event.target.value, this.state.city)
     }
 
     handleSubmit = (event) => { 
@@ -90,12 +100,14 @@ export class Form extends Component {
         return (
             <form onSubmit={this.handleSubmit}>
                 <div>
-                    <label>Departure Airport (Enter a City, State, or Airport Code): </label>
+                    <label>Departure Airport (Enter a City or Airport): </label>
                     <input
                     type='text' 
                     list="places-list"
-                    value={this.state.city}
-                    onChange={this.handleCityChange}
+                    // value={this.state.city}
+                    onKeyPress={this.handleCityChange}
+                    onChange={this.selectionMade}
+                    // add separate function for onchange so when a selection is made, update the state
                     />
                     <datalist id="places-list">
                         {this.state.placeName.map((item, key) =>
