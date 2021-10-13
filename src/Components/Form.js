@@ -12,7 +12,8 @@ export class Form extends Component {
              city: '',
              flights: [],
              placeName: [],
-             airportCode: []
+             airportCodes: [],
+             airportCode: ''
         }
     }
 
@@ -35,7 +36,7 @@ export class Form extends Component {
         clearTimeout(this.timeout)
 
         this.setState({
-            city: event.target.value
+          city: event.target.value
         })
 
         this.timeout = setTimeout(() => {
@@ -55,15 +56,16 @@ export class Form extends Component {
                     .then(res => {
                         const places = res.data;
                         let placeArray = [];
-                        let placeName = [];
-                        console.log(places);
+                        let placeName = []; // create array to store the names
+                        let airportCodes = [];
                         for (let i = 0; i < places.Places.length; i++) { // test getting the placename
-                            placeArray = Object.values(places.Places[i]);
-                            placeName[i] = placeArray[1]; // this gets the placename, which will populate the dropdown
-                            console.log(placeName[i]);
-                            console.log(placeArray[4]) // placeArray[4] is the airport code
+                            placeArray = Object.values(places.Places[i]); // create an array for easier access
+                            //placeArray[i+1] = Object.values(places.Places[0])
+                            placeName[i] = placeArray[1]; // get the names for the dropdown list
+                            airportCodes[i] = placeArray[0];
                         }
                         this.setState({ placeName });
+                        this.setState({ airportCodes });
                     });
                     event.preventDefault();
             }
@@ -72,13 +74,24 @@ export class Form extends Component {
 
     selectionMade = (event) => {
         this.setState({
-            city: event.target.value
+            city:event.target.value
         })
-        console.log("Value is:", event.target.value, this.state.city)
+
+        for (let i = 0; i < this.state.placeName.length; i++)
+        {
+            if (this.state.placeName[i] === event.target.value)
+            {
+                console.log(this.state.placeName[i])
+                this.setState({
+                    airportCode: this.state.airportCodes[i]
+                })
+            }
+        }
     }
 
+
     handleSubmit = (event) => { 
-        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.city}/anywhere/anytime`
+        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.airportCode}/anywhere/anytime`
         axios.get(url, 
         {
             headers: {
@@ -107,13 +120,18 @@ export class Form extends Component {
                     // value={this.state.city}
                     onKeyPress={this.handleCityChange}
                     onChange={this.selectionMade}
-                    // add separate function for onchange so when a selection is made, update the state
                     />
                     <datalist id="places-list">
                         {this.state.placeName.map((item, key) =>
                             <option key={key} value={item} />
                         )}
                     </datalist>
+                    <div>
+                        <label> 
+                            Selected City: {this.state.city}
+                            Selected Airport Code: {this.state.airportCode}
+                        </label>
+                    </div>
                 </div>
                 <div>
                     <label>Budget: </label>
