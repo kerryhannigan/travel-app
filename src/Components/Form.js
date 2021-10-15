@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import '../App.css'
+import styles from "./Form.module.css"
 
 export class Form extends Component {
 
@@ -77,6 +79,7 @@ export class Form extends Component {
             city:event.target.value
         })
 
+        // get the airport code
         for (let i = 0; i < this.state.placeName.length; i++)
         {
             if (this.state.placeName[i] === event.target.value)
@@ -105,15 +108,20 @@ export class Form extends Component {
             this.setState({ flights });
             console.log(flights);
         });
+        console.log(this.state.airportCode)
         event.preventDefault();
     }   
 
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form 
+            className={styles.form} 
+            onSubmit={this.handleSubmit}>
                 <div>
-                    <label>Departure Airport (Enter a City or Airport): </label>
+                    <label>Enter a Departure City or Airport: </label>
+                </div>
+                <div>
                     <input
                     type='text' 
                     list="places-list"
@@ -126,22 +134,18 @@ export class Form extends Component {
                             <option key={key} value={item} />
                         )}
                     </datalist>
-                    <div>
-                        <label> 
-                            Selected City: {this.state.city}
-                            Selected Airport Code: {this.state.airportCode}
-                        </label>
-                    </div>
                 </div>
                 <div>
-                    <label>Budget: </label>
+                    <label>Enter Desired Budget: </label>
+                </div>
+                <div>
                     <input 
                     type ='text' 
                     value={this.state.budget} 
                     onChange={this.handleBudgetChange}
                     />
                 </div>
-                <div>
+{/*                 <div>
                     <label>Or Select a Budget: </label>
                     <select 
                     value={this.state.chooseBudget} 
@@ -153,8 +157,13 @@ export class Form extends Component {
                         <option value="5">$400-$500</option>
                         <option value="3">$500+</option>
                     </select>
+                </div> */}
+                <div>
+                    <button type="submit">Add a Destination</button>
                 </div>
-                <button type="submit">Submit</button>
+                <div>
+                    <button type="submit">Show Me Flights</button>
+                </div>
             </form>
         )
     }
