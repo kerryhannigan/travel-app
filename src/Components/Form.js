@@ -11,11 +11,18 @@ export class Form extends Component {
         this.state = {
              budget: '',
              chooseBudget: '',
-             city: '',
              flights: [],
-             placeName: [],
-             airportCodes: [],
-             airportCode: ''
+             origin: '',
+             originNames: [],
+             originCodes: [],
+             originCode: '',
+             destination: '',
+             destinationNames: [],
+             destinationCodes:[],
+             destinationCode: '',
+             destPlaces: [],
+             origPlaces: []
+
         }
     }
 
@@ -33,60 +40,119 @@ export class Form extends Component {
 
     timeout = null
 
-    // get some cities from search 
-    handleCityChange = (event) => {
+    handleOriginChange = (event) => {
         clearTimeout(this.timeout)
 
         this.setState({
-          city: event.target.value
+          origin: event.target.value
         })
 
         this.timeout = setTimeout(() => {
             var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
-            if (this.state.city.length > 0) {
+            if (this.state.origin.length > 0) {
                 axios.get(url, 
                     {
                         params: {
-                            query: this.state.city
+                            query: this.state.origin
                         },
                         headers: {
                             'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-                            'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
-                            // in the future, don't hardcode API key into frontend 
+                            'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
+                            // this is unsafe but for the purpose of this project, it'll do 
                         }
                     })
                     .then(res => {
-                        const places = res.data;
-                        let placeArray = [];
-                        let placeName = []; // create array to store the names
-                        let airportCodes = [];
-                        for (let i = 0; i < places.Places.length; i++) { // test getting the placename
-                            placeArray = Object.values(places.Places[i]); // create an array for easier access
-                            //placeArray[i+1] = Object.values(places.Places[0])
-                            placeName[i] = placeArray[1]; // get the names for the dropdown list
-                            airportCodes[i] = placeArray[0];
+                        const origPlaces = res.data;
+                        let temp = [];
+                        let originNames = []; 
+                        let originCodes = [];
+                        for (let i = 0; i < origPlaces.Places.length; i++) { 
+                            temp = Object.values(origPlaces.Places[i]);
+                            originNames[i] = temp[1]; 
+                            originCodes[i] = temp[0]; 
                         }
-                        this.setState({ placeName });
-                        this.setState({ airportCodes });
+                        this.setState({ originNames });
+                        this.setState({ originCodes });
+                        this.setState({ origPlaces })
                     });
                     event.preventDefault();
             }
         }, 500)
     }
 
-    selectionMade = (event) => {
+    handleDestinationChange = (event) => {
+        clearTimeout(this.timeout)
+
         this.setState({
-            city:event.target.value
+          destination: event.target.value
+        })
+
+        this.timeout = setTimeout(() => {
+            var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
+            if (this.state.destination.length > 0) {
+                axios.get(url, 
+                    {
+                        params: {
+                            query: this.state.destination
+                        },
+                        headers: {
+                            'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
+                            'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
+                            // this is unsafe but for the purpose of this project, it'll do 
+                        }
+                    })
+                    .then(res => {
+                        const destPlaces = res.data;
+                        let temp2 = [];
+                        let destinationNames = []; 
+                        let destinationCodes = [];
+                        for (let i = 0; i < destPlaces.Places.length; i++) { 
+                            temp2 = Object.values(destPlaces.Places[i]);
+                            destinationNames[i] = temp2[1]; 
+                            destinationCodes[i] = temp2[0]; 
+                        }
+                        this.setState({ destinationNames });
+                        this.setState({ destinationCodes });
+                        this.setState({ destPlaces })
+                    });
+                    event.preventDefault();
+            }
+        }, 500)
+    }
+
+    originSelected = (event) => { // onChange handler
+        this.setState({
+            origin:event.target.value
+        })
+
+        // if airport code is '', we need to get the airport code
+
+        // get the airport code
+        for (let i = 0; i < this.state.originNames.length; i++)
+        {
+            if (this.state.originNames[i] === event.target.value)
+            {
+                console.log(this.state.originNames[i])
+                this.setState({
+                    originCode: this.state.originCodes[i]
+                })
+            }
+        }
+    }
+
+    destinationSelected = (event) => {
+        this.setState({
+            destination:event.target.value
         })
 
         // get the airport code
-        for (let i = 0; i < this.state.placeName.length; i++)
+        for (let i = 0; i < this.state.destinationNames.length; i++)
         {
-            if (this.state.placeName[i] === event.target.value)
+            if (this.state.destinationNames[i] === event.target.value)
             {
-                console.log(this.state.placeName[i])
+                console.log(this.state.destinationNames[i])
                 this.setState({
-                    airportCode: this.state.airportCodes[i]
+                    destinationCode: this.state.destinationCodes[i]
                 })
             }
         }
@@ -94,7 +160,7 @@ export class Form extends Component {
 
 
     handleSubmit = (event) => { 
-        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.airportCode}/anywhere/anytime`
+        var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.originCode}/${this.state.destinationCode}/anytime`
         axios.get(url, 
         {
             headers: {
@@ -108,7 +174,6 @@ export class Form extends Component {
             this.setState({ flights });
             console.log(flights);
         });
-        console.log(this.state.airportCode)
         event.preventDefault();
     }   
 
@@ -125,13 +190,13 @@ export class Form extends Component {
                     <input
                     type='text' 
                     list="places-list"
-                    // value={this.state.city}
-                    onKeyPress={this.handleCityChange}
-                    onChange={this.selectionMade}
+                    value={this.state.origin}
+                    onKeyPress={this.handleOriginChange}
+                    onChange={this.originSelected}
                     placeholder="Enter a City or Airport"
                     />
                     <datalist id="places-list">
-                        {this.state.placeName.map((item, key) =>
+                        {this.state.originNames.map((item, key) =>
                             <option key={key} value={item} />
                         )}
                     </datalist>
@@ -140,11 +205,19 @@ export class Form extends Component {
                     <label>Destination: </label>
                 </div>
                 <div>
-                    <input 
-                    type ='text' 
-                    value={this.state.budget} 
-                    onChange={this.handleBudgetChange}
+                    <input
+                    type='text' 
+                    list="places-list2"
+                    value={this.state.destination}
+                    onKeyPress={this.handleDestinationChange}
+                    onChange={this.destinationSelected}
+                    placeholder="City, Airport, or 'anywhere'"
                     />
+                    <datalist id="places-list2">
+                        {this.state.destinationNames.map((item, key) =>
+                            <option key={key} value={item} />
+                        )}
+                    </datalist>
                 </div>
 {/*                 <div>
                     <label>Or Select a Budget: </label>
@@ -160,10 +233,13 @@ export class Form extends Component {
                     </select>
                 </div> */}
                 <div>
-                    <button type="submit">Add a Price Range</button>
+                    <button type="submit">Show Me Flights</button>
                 </div>
                 <div>
-                    <button type="submit">Show Me Flights</button>
+                    <label>On a budget?</label>
+                </div>
+                <div>
+                    <button>Add a Price Range</button>
                 </div>
             </form>
         )
@@ -171,6 +247,3 @@ export class Form extends Component {
 }
 
 export default Form
-
-
-// make button say "Show me flights to anywhere, or select Enter a destination" --> "Enter a destination"
