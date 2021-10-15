@@ -119,7 +119,7 @@ export class Form extends Component {
             className={styles.form} 
             onSubmit={this.handleSubmit}>
                 <div>
-                    <label>Enter a Departure City or Airport: </label>
+                    <label>Origin: </label>
                 </div>
                 <div>
                     <input
@@ -128,6 +128,7 @@ export class Form extends Component {
                     // value={this.state.city}
                     onKeyPress={this.handleCityChange}
                     onChange={this.selectionMade}
+                    placeholder="Enter a City or Airport"
                     />
                     <datalist id="places-list">
                         {this.state.placeName.map((item, key) =>
@@ -136,7 +137,7 @@ export class Form extends Component {
                     </datalist>
                 </div>
                 <div>
-                    <label>Enter Desired Budget: </label>
+                    <label>Destination: </label>
                 </div>
                 <div>
                     <input 
@@ -159,7 +160,7 @@ export class Form extends Component {
                     </select>
                 </div> */}
                 <div>
-                    <button type="submit">Add a Destination</button>
+                    <button type="submit">Add a Price Range</button>
                 </div>
                 <div>
                     <button type="submit">Show Me Flights</button>
