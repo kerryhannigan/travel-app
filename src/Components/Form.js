@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import '../App.css'
-import styles from "./Form.module.css"
+import '../CSS/index.css';
 
 export class Form extends Component {
 
@@ -58,7 +57,6 @@ export class Form extends Component {
                         headers: {
                             'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
                             'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
-                            // this is unsafe but for the purpose of this project, it'll do 
                         }
                     })
                     .then(res => {
@@ -98,7 +96,6 @@ export class Form extends Component {
                         headers: {
                             'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
                             'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
-                            // this is unsafe but for the purpose of this project, it'll do 
                         }
                     })
                     .then(res => {
@@ -124,9 +121,6 @@ export class Form extends Component {
         this.setState({
             origin:event.target.value
         })
-
-        // if airport code is '', we need to get the airport code
-
         // get the airport code
         for (let i = 0; i < this.state.originNames.length; i++)
         {
@@ -165,8 +159,7 @@ export class Form extends Component {
         {
             headers: {
                 'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-                'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
-                // in the future, don't hardcode API key into frontend 
+                'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
             }
         })
         .then(res => {
@@ -180,67 +173,65 @@ export class Form extends Component {
 
     render() {
         return (
-            <form 
-            className={styles.form} 
+            <form
+            class="bg-green-50" 
             onSubmit={this.handleSubmit}>
-                <div>
-                    <label>Origin: </label>
+                <div class="flex justify-center">
+                <div class="py-6">
+                    <div class="flex flex-col w-64 space-y-2">
+                        <label id="default" class="text-gray-700 select-none font-medium">Origin</label>
+                        <input
+                        id="default"
+                        type="text"
+                        list="places-list"
+                        value={this.state.origin}
+                        onKeyPress={this.handleOriginChange}
+                        onChange={this.originSelected}
+                        placeholder="Enter a City or Airport"
+                        class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        />
+                        <datalist id="places-list">
+                            {this.state.originNames.map((item, key) =>
+                                <option key={key} value={item} />
+                            )}
+                        </datalist>
+                    </div>
                 </div>
-                <div>
-                    <input
-                    type='text' 
-                    list="places-list"
-                    value={this.state.origin}
-                    onKeyPress={this.handleOriginChange}
-                    onChange={this.originSelected}
-                    placeholder="Enter a City or Airport"
-                    />
-                    <datalist id="places-list">
-                        {this.state.originNames.map((item, key) =>
+                </div>
+                <div class="flex justify-center">
+                <div class="py-6">
+                    <div class="flex flex-col w-64 space-y-2">
+                        <label id="default" class="text-gray-700 select-none font-medium">Destination</label>
+                        <input
+                        id="default"
+                        type='text' 
+                        list="places-list2"
+                        value={this.state.destination}
+                        onKeyPress={this.handleDestinationChange}
+                        onChange={this.destinationSelected}
+                        placeholder="City, Airport, or 'anywhere'"
+                        class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        />
+                        <datalist id="places-list2">
+                            {this.state.destinationNames.map((item, key) =>
                             <option key={key} value={item} />
-                        )}
-                    </datalist>
+                            )}
+                        </datalist>
+                    </div>
                 </div>
-                <div>
-                    <label>Destination: </label>
                 </div>
-                <div>
-                    <input
-                    type='text' 
-                    list="places-list2"
-                    value={this.state.destination}
-                    onKeyPress={this.handleDestinationChange}
-                    onChange={this.destinationSelected}
-                    placeholder="City, Airport, or 'anywhere'"
-                    />
-                    <datalist id="places-list2">
-                        {this.state.destinationNames.map((item, key) =>
-                            <option key={key} value={item} />
-                        )}
-                    </datalist>
+                <div class="flex justify-center py-6">
+                    <button 
+                    class="btn btn-blue"
+                    type="submit">Show Me Flights</button>
+          
                 </div>
 {/*                 <div>
-                    <label>Or Select a Budget: </label>
-                    <select 
-                    value={this.state.chooseBudget} 
-                    onChange={this.handleChooseBudgetchange}>
-                        <option value="1">$100 or less</option>
-                        <option value="2">$100-$200</option>
-                        <option value="3">$200-$300</option>
-                        <option value="4">$300-$400</option>
-                        <option value="5">$400-$500</option>
-                        <option value="3">$500+</option>
-                    </select>
-                </div> */}
-                <div>
-                    <button type="submit">Show Me Flights</button>
-                </div>
-                <div>
                     <label>On a budget?</label>
                 </div>
                 <div>
                     <button>Add a Price Range</button>
-                </div>
+                </div> */}
             </form>
         )
     }

@@ -1,4 +1,5 @@
-import './App.css';
+//import './CSS/App.css';
+import './CSS/index.css';
 import Header from './Components/Header';
 import Form from './Components/Form';
 
