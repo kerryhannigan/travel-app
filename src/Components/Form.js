@@ -104,6 +104,10 @@ export class Form extends Component {
                         let temp2 = [];
                         let destinationNames = []; 
                         let destinationCodes = [];
+                        if (event.target.value.toLowerCase() === 'anywhere')
+                        {
+                            destinationNames.push('Anywhere')
+                        }
                         for (let i = 0; i < destPlaces.Places.length; i++) { 
                             temp2 = Object.values(destPlaces.Places[i]);
                             destinationNames[i] = temp2[1]; 
@@ -136,7 +140,8 @@ export class Form extends Component {
             {
                 this.setState({
                     showDestinationSearch: false,
-                    showButton: false
+                    showButton: false,
+                    destination: ''
                 })
             }    
         }
@@ -146,23 +151,32 @@ export class Form extends Component {
         this.setState({
             destination:event.target.value
         })
-
         // get the airport code
-        for (let i = 0; i < this.state.destinationNames.length; i++)
+        if (this.state.destination.toLowerCase !== 'anywhere')
         {
-            if (this.state.destinationNames[i] === event.target.value)
+            for (let i = 0; i < this.state.destinationNames.length; i++)
             {
-                this.setState({
-                    destinationCode: this.state.destinationCodes[i],
-                    showButton: true
-                })
+                if (this.state.destinationNames[i] === event.target.value)
+                {
+                    this.setState({
+                        destinationCode: this.state.destinationCodes[i],
+                        showButton: true
+                    })
+                }
             }
-            else if (event.target.value === '')  
-            {
-                this.setState({
-                    showButton: false
-                })
-            }
+        }
+        else 
+        {
+            this.setState({
+                destinationCode: 'anywhere',
+                showButton: true,
+            })
+        }
+        if (event.target.value === '')  
+        {
+            this.setState({
+                showButton: false
+            })
         }
     }
 
