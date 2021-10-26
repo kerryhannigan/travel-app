@@ -20,8 +20,9 @@ export class Form extends Component {
              destinationCodes:[],
              destinationCode: '',
              destPlaces: [],
-             origPlaces: []
-
+             origPlaces: [],
+             showDestinationSearch: false,
+             showButton: false
         }
     }
 
@@ -119,18 +120,25 @@ export class Form extends Component {
 
     originSelected = (event) => { // onChange handler
         this.setState({
-            origin:event.target.value
+            origin:event.target.value,
         })
         // get the airport code
         for (let i = 0; i < this.state.originNames.length; i++)
         {
             if (this.state.originNames[i] === event.target.value)
             {
-                console.log(this.state.originNames[i])
                 this.setState({
-                    originCode: this.state.originCodes[i]
+                    originCode: this.state.originCodes[i],
+                    showDestinationSearch: true
                 })
             }
+            else if (event.target.value === '')
+            {
+                this.setState({
+                    showDestinationSearch: false,
+                    showButton: false
+                })
+            }    
         }
     }
 
@@ -144,9 +152,15 @@ export class Form extends Component {
         {
             if (this.state.destinationNames[i] === event.target.value)
             {
-                console.log(this.state.destinationNames[i])
                 this.setState({
-                    destinationCode: this.state.destinationCodes[i]
+                    destinationCode: this.state.destinationCodes[i],
+                    showButton: true
+                })
+            }
+            else if (event.target.value === '')  
+            {
+                this.setState({
+                    showButton: false
                 })
             }
         }
@@ -174,12 +188,12 @@ export class Form extends Component {
     render() {
         return (
             <form
-            class="bg-green-50" 
+            className="bg-green-50" 
             onSubmit={this.handleSubmit}>
-                <div class="flex justify-center">
-                <div class="py-6">
-                    <div class="flex flex-col w-64 space-y-2">
-                        <label id="default" class="text-gray-700 select-none font-medium">Origin</label>
+                <div className="flex justify-center">
+                <div className="py-6">
+                    <div className="flex flex-col w-64 space-y-2">
+                        <label id="default" className="text-gray-700 select-none font-medium">Origin</label>
                         <input
                         id="default"
                         type="text"
@@ -188,7 +202,7 @@ export class Form extends Component {
                         onKeyPress={this.handleOriginChange}
                         onChange={this.originSelected}
                         placeholder="Enter a City or Airport"
-                        class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
                         />
                         <datalist id="places-list">
                             {this.state.originNames.map((item, key) =>
@@ -198,34 +212,41 @@ export class Form extends Component {
                     </div>
                 </div>
                 </div>
-                <div class="flex justify-center">
-                <div class="py-6">
-                    <div class="flex flex-col w-64 space-y-2">
-                        <label id="default" class="text-gray-700 select-none font-medium">Destination</label>
-                        <input
-                        id="default"
-                        type='text' 
-                        list="places-list2"
-                        value={this.state.destination}
-                        onKeyPress={this.handleDestinationChange}
-                        onChange={this.destinationSelected}
-                        placeholder="City, Airport, or 'anywhere'"
-                        class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
-                        />
-                        <datalist id="places-list2">
-                            {this.state.destinationNames.map((item, key) =>
-                            <option key={key} value={item} />
-                            )}
-                        </datalist>
+                {
+                this.state.showDestinationSearch?
+                    <div className="flex justify-center">
+                    <div className="py-6">
+                        <div className="flex flex-col w-64 space-y-2">
+                            <label id="default" className="text-gray-700 select-none font-medium">Destination</label>
+                            <input
+                            id="default"
+                            type='text' 
+                            list="places-list2"
+                            value={this.state.destination}
+                            onKeyPress={this.handleDestinationChange}
+                            onChange={this.destinationSelected}
+                            placeholder="City, Airport, or 'anywhere'"
+                            className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            />
+                            <datalist id="places-list2">
+                                {this.state.destinationNames.map((item, key) =>
+                                <option key={key} value={item} />
+                                )}
+                            </datalist>
+                        </div>
                     </div>
-                </div>
-                </div>
-                <div class="flex justify-center py-6">
-                    <button 
-                    class="btn btn-blue"
-                    type="submit">Show Me Flights</button>
-          
-                </div>
+                    </div>
+                :null
+                }
+                {
+                this.state.showButton?
+                    <div className="flex justify-center py-6">
+                        <button 
+                        className="btn btn-blue"
+                        type="submit">Show Me Flights</button>
+                    </div>
+                :null
+                }
 {/*                 <div>
                     <label>On a budget?</label>
                 </div>
