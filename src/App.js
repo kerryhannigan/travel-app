@@ -25,7 +25,8 @@ class App extends Component{
       destPlaces: [],
       origPlaces: [],
       showDestinationSearch: false,
-      showButton: false
+      showButton: false,
+      selected: '' 
     }
   }
 
@@ -51,27 +52,25 @@ class App extends Component{
       })
 
       this.timeout = setTimeout(() => {
-          var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
+          var url = `https://priceline-com-provider.p.rapidapi.com/v1/flights/locations`
           if (this.state.origin.length > 0) {
               axios.get(url, 
                   {
                       params: {
-                          query: this.state.origin
+                          name: this.state.origin
                       },
                       headers: {
-                          'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
+                          'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
                           'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
                       }
                   })
                   .then(res => {
                       const origPlaces = res.data;
-                      let temp = [];
                       let originNames = []; 
                       let originCodes = [];
-                      for (let i = 0; i < origPlaces.Places.length; i++) { 
-                          temp = Object.values(origPlaces.Places[i]);
-                          originNames[i] = temp[1]; 
-                          originCodes[i] = temp[0]; 
+                      for (let i = 0; i < origPlaces.length; i++) { 
+                          originNames[i] = origPlaces[i].itemName; 
+                          originCodes[i] = origPlaces[i].id; 
                       }
                       this.setState({ originNames });
                       this.setState({ originCodes });
@@ -90,32 +89,26 @@ class App extends Component{
       })
 
       this.timeout = setTimeout(() => {
-          var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/US/USD/en-US/`
-          if (this.state.destination.length > 0) {
-              axios.get(url, 
-                  {
-                      params: {
-                          query: this.state.destination
-                      },
-                      headers: {
-                          'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-                          'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
-                      }
-                  })
-                  .then(res => {
-                      const destPlaces = res.data;
-                      let temp2 = [];
-                      let destinationNames = []; 
-                      let destinationCodes = [];
-                      if (event.target.value.toLowerCase() === 'anywhere')
-                      {
-                          destinationNames.push('Anywhere')
-                      }
-                      for (let i = 0; i < destPlaces.Places.length; i++) { 
-                          temp2 = Object.values(destPlaces.Places[i]);
-                          destinationNames[i] = temp2[1]; 
-                          destinationCodes[i] = temp2[0]; 
-                      }
+        var url = `https://priceline-com-provider.p.rapidapi.com/v1/flights/locations`
+        if (this.state.origin.length > 0) {
+            axios.get(url, 
+                {
+                    params: {
+                        name: this.state.origin
+                    },
+                    headers: {
+                        'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
+                        'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
+                    }
+                })
+                .then(res => {
+                    const destPlaces = res.data;
+                    let destinationNames = []; 
+                    let destinationCodes = [];
+                    for (let i = 0; i < destPlaces.length; i++) { 
+                        destinationNames[i] = destPlaces[i].itemName; 
+                        destinationCodes[i] = destPlaces[i].id; 
+                    }
                       this.setState({ destinationNames });
                       this.setState({ destinationCodes });
                       this.setState({ destPlaces })
@@ -168,13 +161,6 @@ class App extends Component{
               }
           }
       }
-      else 
-      {
-          this.setState({
-              destinationCode: 'anywhere',
-              showButton: true,
-          })
-      }
       if (event.target.value === '')  
       {
           this.setState({
@@ -185,13 +171,21 @@ class App extends Component{
 
 
   handleSubmit = (event) => { 
-      var url = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/${this.state.originCode}/${this.state.destinationCode}/anytime`
+      var url = `https://priceline-com-provider.p.rapidapi.com/v1/flights/search`
       axios.get(url, 
       {
-          headers: {
-              'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-              'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
-          }
+        headers: {
+            'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
+            'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
+        },
+        params: {
+            sort_order: 'PRICE',
+            location_departure: this.state.originCode,
+            date_departure: '2021-12-03',
+            class_type: 'ECO',
+            location_arrival: this.state.destinationCode,
+            itinerary_type: 'ONE_WAY',
+        }
       })
       .then(res => {
           const flights = res.data;
@@ -201,13 +195,11 @@ class App extends Component{
       event.preventDefault();
   }   
 
-
   render() {
     return (
-      <div className="App">
-      <div className="content">
+        <div>
         <Header />
-          <Form   
+        <Form   
             handleOriginChange={this.handleOriginChange}
             handleDestinationChange={this.handleDestinationChange}
             originSelected={this.originSelected}
@@ -226,9 +218,8 @@ class App extends Component{
             origPlaces={this.state.origPlaces}
             showDestinationSearch={this.state.showDestinationSearch}
             showButton={this.state.showButton}
-          />
-      </div>
-    </div>
+        />
+        </div>
     );
   }
 }

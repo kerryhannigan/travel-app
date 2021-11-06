@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import 'react-day-picker/lib/style.css';
 import '../CSS/index.css';
 
 export class Form extends Component {
@@ -9,7 +11,23 @@ export class Form extends Component {
             className="bg-green-50" 
             onSubmit={this.props.handleSubmit}>
                 <div className="flex justify-center">
-                <div className="py-6">
+                <div className="py-2">
+                    <div className="flex flex-col w-64 space-y-2">
+                    <label id="default" className="text-gray-700 select-none font-medium">Departure Date</label>
+                        <DayPickerInput />
+                    </div>
+                </div>
+                </div>
+                <div className="flex justify-center">
+                <div className="py-2">
+                    <div className="flex flex-col w-64 space-y-2">
+                    <label id="default" className="text-gray-700 select-none font-medium">Return Date</label>
+                        <DayPickerInput />
+                    </div>
+                </div>
+                </div>
+                <div className="flex justify-center">
+                <div className="py-2">
                     <div className="flex flex-col w-64 space-y-2">
                         <label id="default" className="text-gray-700 select-none font-medium">Origin</label>
                         <input
@@ -33,7 +51,7 @@ export class Form extends Component {
                 {
                 this.props.showDestinationSearch?
                     <div className="flex justify-center">
-                    <div className="py-6">
+                    <div className="pb-64 pt-2">
                         <div className="flex flex-col w-64 space-y-2">
                             <label id="default" className="text-gray-700 select-none font-medium">Destination</label>
                             <input
@@ -54,7 +72,9 @@ export class Form extends Component {
                         </div>
                     </div>
                     </div>
-                :null
+                :<div
+                className= "py-24">
+                </div>
                 }
                 {
                 this.props.showButton?
