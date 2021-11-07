@@ -61,7 +61,7 @@ class App extends Component{
                       },
                       headers: {
                           'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
-                          'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
+                          'x-rapidapi-key': process.env.REACT_APP_API_KEY
                       }
                   })
                   .then(res => {
@@ -98,7 +98,7 @@ class App extends Component{
                     },
                     headers: {
                         'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
-                        'x-rapidapi-key': `${process.env.REACT_APP_API_KEY}`
+                        'x-rapidapi-key': process.env.REACT_APP_API_KEY
                     }
                 })
                 .then(res => {
@@ -176,7 +176,7 @@ class App extends Component{
       {
         headers: {
             'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
-            'x-rapidapi-key': 'ff58f5859cmsh50b8a3f16203297p1131d0jsn69e3d1cab9bc'
+            'x-rapidapi-key': process.env.REACT_APP_API_KEY
         },
         params: {
             sort_order: 'PRICE',
