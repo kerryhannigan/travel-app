@@ -90,11 +90,11 @@ class App extends Component{
 
       this.timeout = setTimeout(() => {
         var url = `https://priceline-com-provider.p.rapidapi.com/v1/flights/locations`
-        if (this.state.origin.length > 0) {
+        if (this.state.destination.length > 0) {
             axios.get(url, 
                 {
                     params: {
-                        name: this.state.origin
+                        name: this.state.destination
                     },
                     headers: {
                         'x-rapidapi-host': 'priceline-com-provider.p.rapidapi.com',
@@ -118,7 +118,7 @@ class App extends Component{
       }, 500)
   }
 
-  originSelected = (event) => { // onChange handler
+  originSelected = (event) => {
       this.setState({
           origin:event.target.value,
       })
