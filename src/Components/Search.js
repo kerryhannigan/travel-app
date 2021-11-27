@@ -1,6 +1,6 @@
 // search will manage state for calendar, origin search, destination search, and search components
 
-import React, { Component } from 'react';
+import React from 'react';
 import Calendar from './Calendar';
 import { DateUtils } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
@@ -11,7 +11,7 @@ import OriginSearch from './OriginSearchBar';
 import SubmitSearch from './SubmitSearch';
 import '../CSS/index.css';
 
-class Search extends Component {
+export default class Search extends React.Component {
     static defaultProps = {
         numberOfMonths: 1,
       };
@@ -24,14 +24,16 @@ class Search extends Component {
             outboundDate: '',
             inboundDate: '',
             pricedItineraries: [],
-            results: {},
+            results: [],
             placeNames: [],
             origin: '',
             destination: '',
-            airportCodes: [], // [0] should be origin, [1] should be destination
+            airportCodes: [], 
             showDestinationSearch: false,
             showButton: false,
             isSubmitted: false,
+            itineraries: [],
+            submissions: 0,
         }
     }
 
@@ -83,11 +85,10 @@ class Search extends Component {
               const places = res.data;
               let placeNames = [];
               for (let i = 0; i < places.length; i++) { 
-                  placeNames[i] = places[i].displayName; 
-                  //destinationCodes[i] = destPlaces[i].id; 
+                  placeNames[i] = places[i].displayName;  
               }
-                  this.setState({ placeNames }); // store this to list the location names in dropdown 
-                  this.setState({ results: places }); // store this for accessing the airport code
+                this.setState({ placeNames }); // store this to list the location names in dropdown 
+                this.setState({ results: places }); // store this for accessing the airport code
           });
         }
     }
@@ -170,14 +171,62 @@ class Search extends Component {
         .then(res => {
             let results = res.data;
             results = (Object.values(results)); 
-            this.setState({ results });
-            console.log(results)
-            console.log(results[9])
-            console.log(results[9].length)
+            this.setState({ results }, () => { this.parseData() }); 
         });
         this.setState ({
-            isSubmitted: true
-        })
+            isSubmitted: true,
+        });
+        event.preventDefault();
+    }
+
+    parseData = () => { // we'll get the 5 cheapest itineraries with one or two legs
+        var pricedItinerary = this.state.results[9];
+        var allSlices = this.state.results[10];
+        var allSegments = this.state.results[11];
+        for (var i = 0; i < 5; i++) {
+            var totalPrice = pricedItinerary[i].pricingInfo.totalFare; // get the price
+            var id = pricedItinerary[i].id;
+            var slices = pricedItinerary[i].slice;
+            for (var j = 0; j < slices.length; j++) {
+                var sliceId = slices[j].uniqueSliceId; // get the slice id
+            }
+            for (var k = 0; k < allSlices.length; k++) {
+                if (sliceId === allSlices[k].uniqueSliceId) { // use slice id to get the segments
+                    var segments = allSlices[k].segment;
+                    if (segments.length === 2) {
+                        var numberOfLegs = 2;
+                        var segId1 = segments[0].uniqueSegId; // store the unique segment ids
+                        var segId2 = segments[1].uniqueSegId;
+                    } 
+                    else if (segments.length === 1) {
+                        numberOfLegs = 1;
+                        var segId = segments[0].uniqueSegId;
+                    }
+                }
+            }
+            for (var m = 0; m < allSegments.length; m++) { // loop through the segments, match up the segment ids, get the date/times
+                if (segId1 === allSegments[m].uniqueSegId) {
+                    var arrivalDateTime1 = allSegments[m].arrivalDateTime;   
+                    var departureDateTime1 = allSegments[m].departDateTime;  
+                }
+                if (segId2 === allSegments[m].uniqueSegId) {
+                    var arrivalDateTime2 = allSegments[m].arrivalDateTime;   
+                    var departureDateTime2 = allSegments[m].departDateTime; 
+                }   
+                else if (segId === allSegments[m].uniqueSegId) {
+                    arrivalDateTime1 = allSegments[m].arrivalDateTime;   
+                    departureDateTime1 = allSegments[m].departDateTime; 
+                }
+            }
+            if (segments.length === 2) {
+                var itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Departure_Date_2": departureDateTime2, "Arrival_Date_2": arrivalDateTime2, "Number_of_Legs": numberOfLegs};
+                this.state.itineraries.push(itinerary);
+            }
+            else if (segments.length === 1) {
+                itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Number_of_Legs": numberOfLegs};
+                this.state.itineraries.push(itinerary);
+            }
+        }
     }
 
 
@@ -202,16 +251,12 @@ class Search extends Component {
                 outboundDate = {this.state.outboundDate}
                 />
                 <OriginSearch 
-                selectedPlace = {this.state.selectedPlace}
-                airportCode = {this.state.airportCode}
                 handleInputChange = {this.handleInputChange}
                 handleOriginSelect = {this.handleOriginSelect}
                 placeNames = {this.state.placeNames}
                 />
                 {this.state.showDestinationSearch?
                     <DestSearch 
-                    selectedPlace = {this.state.selectedPlace}
-                    airportCode = {this.state.airportCode}
                     handleInputChange = {this.handleInputChange}
                     handleDestinationSelect = {this.handleDestinationSelect}
                     placeNames = {this.state.placeNames}/>
@@ -219,11 +264,18 @@ class Search extends Component {
                 {this.state.showButton?
                     <SubmitSearch 
                     handleSubmit = {this.handleSubmit}
-                    results = {this.state.results}
+                    itineraries = {this.state.itineraries}
                     isSubmitted = {this.state.isSubmitted}
                     />
                 :null}
-                </div>
+                {this.state.itineraries.map((value) => 
+                    (<div key={value.ID}>
+                        <p>Total price (including fees): ${value.Price}</p>
+                        <p>Departure Time: {value.Departure_Date_1}</p>
+                        <p>Arrival Time: {value.Arrival_Date_1}</p><br></br>
+                    </div>)
+                )}
+                </div> 
                 </div>
                 </div>
                 </div>
@@ -232,4 +284,3 @@ class Search extends Component {
     }
 }
 
-export default Search;
