@@ -6,13 +6,12 @@ import '../CSS/index.css';
 export default class Calendar extends React.Component {
   render() {
     return (
-      <div className="RangeExample">
+      <div>
         <DayPicker
-          className="Selectable"
           numberOfMonths={this.props.numberOfMonths}
           selectedDays={this.props.selectedDays}
-          modifiers={this.props.modifiers}
           onDayClick={this.props.handleDayClick}
+          disabledDays={[{ before: new Date() }]}
         />
       </div>
     );

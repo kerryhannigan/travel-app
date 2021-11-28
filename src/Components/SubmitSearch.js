@@ -1,12 +1,7 @@
 import React from 'react';
 import '../CSS/index.css';
-import moment from 'moment';
 
 export default class SubmitSearch extends React.Component { 
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.itineraries !== this.props.itineraries;
-    }
 
     render() {
         return (
@@ -20,7 +15,7 @@ export default class SubmitSearch extends React.Component {
                 Show Me Flights</button>
             </div>
             </form>
-            </div>
+            </div>  
         );
     }
 }

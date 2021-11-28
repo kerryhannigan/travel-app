@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Calendar from './Calendar';
-import { DateUtils } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 import moment from 'moment';
 import axios from 'axios';
@@ -10,19 +9,14 @@ import DestSearch from './DestSearchBar';
 import OriginSearch from './OriginSearchBar';
 import SubmitSearch from './SubmitSearch';
 import '../CSS/index.css';
+import Results from './Results';
 
 export default class Search extends React.Component {
-    static defaultProps = {
-        numberOfMonths: 1,
-      };
-
     constructor(props) {
         super(props);
         this.state = {
-            from: undefined,
-            to: undefined,
+            selectedDay: undefined,
             outboundDate: '',
-            inboundDate: '',
             pricedItineraries: [],
             results: [],
             placeNames: [],
@@ -42,18 +36,15 @@ export default class Search extends React.Component {
             // return nothing, day is disabled
             return;
         }
-        const range = DateUtils.addDayToRange(day, this.state);
-        this.setState(range);
+        if (selected) {
+            this.setState({
+                selectedDay: undefined 
+            });
+            return;
+        }
         this.setState ({
-            outboundDate: (moment(range.from).format('YYYY-MM-DD')),
-            inboundDate: (moment(range.to).format('YYYY-MM-DD'))
-        })
-    }
-
-    handleResetClick = () => {
-        this.setState ({
-            from: undefined,
-            to: undefined
+            selectedDay: day,
+            outboundDate: moment(day).format('YYYY-MM-DD'),
         })
     }
 
@@ -101,6 +92,7 @@ export default class Search extends React.Component {
       if (event.target.value === '') {
         this.setState({
             showDestinationSearch: false,
+            isSubmitted: false,
             showButton: false
         })
       }
@@ -117,6 +109,7 @@ export default class Search extends React.Component {
             temp[1] = '';
             this.setState({
                 showButton: false,
+                isSubmitted: false,
                 airportCodes: temp,
             })
         }
@@ -161,9 +154,8 @@ export default class Search extends React.Component {
           params: {
               sort_order: 'PRICE',
               location_departure: this.state.airportCodes[0],
-              itinerary_type: 'ROUND_TRIP',
+              itinerary_type: 'ONE_WAY',
               date_departure: this.state.outboundDate,
-              date_departure_return: this.state.inboundDate,
               class_type: 'ECO',
               location_arrival: this.state.airportCodes[1],
           }
@@ -172,9 +164,7 @@ export default class Search extends React.Component {
             let results = res.data;
             results = (Object.values(results)); 
             this.setState({ results }, () => { this.parseData() }); 
-        });
-        this.setState ({
-            isSubmitted: true,
+            console.log(results);
         });
         event.preventDefault();
     }
@@ -183,6 +173,13 @@ export default class Search extends React.Component {
         var pricedItinerary = this.state.results[9];
         var allSlices = this.state.results[10];
         var allSegments = this.state.results[11];
+        var arrivalDateTime1 = '';
+        var departureDateTime1 = '';
+        var departureDateTime2 = '';
+        var arrivalDateTime2 = '';
+        var segId = '';
+        var segId1 = '';
+        var segId2 = '';
         for (var i = 0; i < 5; i++) {
             var totalPrice = pricedItinerary[i].pricingInfo.totalFare; // get the price
             var id = pricedItinerary[i].id;
@@ -194,62 +191,64 @@ export default class Search extends React.Component {
                 if (sliceId === allSlices[k].uniqueSliceId) { // use slice id to get the segments
                     var segments = allSlices[k].segment;
                     if (segments.length === 2) {
-                        var numberOfLegs = 2;
-                        var segId1 = segments[0].uniqueSegId; // store the unique segment ids
-                        var segId2 = segments[1].uniqueSegId;
+                        segId1 = segments[0].uniqueSegId; // store the unique segment ids
+                        segId2 = segments[1].uniqueSegId;
                     } 
                     else if (segments.length === 1) {
-                        numberOfLegs = 1;
-                        var segId = segments[0].uniqueSegId;
+                        segId = segments[0].uniqueSegId;
                     }
                 }
             }
             for (var m = 0; m < allSegments.length; m++) { // loop through the segments, match up the segment ids, get the date/times
                 if (segId1 === allSegments[m].uniqueSegId) {
-                    var arrivalDateTime1 = allSegments[m].arrivalDateTime;   
-                    var departureDateTime1 = allSegments[m].departDateTime;  
+                    arrivalDateTime1 = allSegments[m].arrivalDateTime;   
+                    departureDateTime1 = allSegments[m].departDateTime; 
+                    var origin1 = allSegments[m].origAirport;
+                    var destination1 = allSegments[m].destAirport; 
                 }
                 if (segId2 === allSegments[m].uniqueSegId) {
-                    var arrivalDateTime2 = allSegments[m].arrivalDateTime;   
-                    var departureDateTime2 = allSegments[m].departDateTime; 
+                    arrivalDateTime2 = allSegments[m].arrivalDateTime;   
+                    departureDateTime2 = allSegments[m].departDateTime; 
+                    var origin2 = allSegments[m].origAirport;
+                    var destination2 = allSegments[m].destAirport;
                 }   
                 else if (segId === allSegments[m].uniqueSegId) {
                     arrivalDateTime1 = allSegments[m].arrivalDateTime;   
                     departureDateTime1 = allSegments[m].departDateTime; 
+                    origin1 = allSegments[m].origAirport;
+                    destination1 = allSegments[m].destAirport;
                 }
             }
-            if (segments.length === 2) {
-                var itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Departure_Date_2": departureDateTime2, "Arrival_Date_2": arrivalDateTime2, "Number_of_Legs": numberOfLegs};
+            if (segments.length === 2 && this.state.itineraries.length < 5) {
+                var itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Departure_Date_2": departureDateTime2, "Arrival_Date_2": arrivalDateTime2, "Origin1" : origin1, "Destination1" : destination1, "Origin2" : origin2, "Destination2" : destination2};
                 this.state.itineraries.push(itinerary);
             }
-            else if (segments.length === 1) {
-                itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Number_of_Legs": numberOfLegs};
+            else if (segments.length === 1 && this.state.itineraries.length < 5) {
+                itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Origin1" : origin1, "Destination1" : destination1, "Origin2" : null, "Destination2" : null};
                 this.state.itineraries.push(itinerary);
             }
         }
+        console.log(this.state.itineraries);
+        this.setState({
+            itineraries: this.state.itineraries,
+        }, () => {this.setState({isSubmitted: true})});
     }
 
-
     render () {
-        const { from, to } = this.state;
-        const modifiers = { start: from, end: to, disabled: { before: new Date() } };
         return (
             <div>
                 <div className="bg-green-50">
                 <div className="flex justify-center">
                 <div className="py-2">
-                <div className="flex flex-col w-64 space-y-2">
+                <div className="flex flex-col w-96 space-y-2">
+                <center>
                 <label id="default" className="text-gray-700 select-none font-medium">Select Your Travel Dates</label>
                 <Calendar 
                 handleDayClick = {this.handleDayClick}
                 handleResetClick = {this.handleResetClick}
-                getInitialState = {this.getInitialState}
-                state = {this.state}
-                modifiers = {modifiers}
-                selectedDays = {[from, { from, to }]}
-                inboundDate = {this.state.inboundDate}
-                outboundDate = {this.state.outboundDate}
+                selectedDays = {this.state.selectedDay}
                 />
+                </center>
                 <OriginSearch 
                 handleInputChange = {this.handleInputChange}
                 handleOriginSelect = {this.handleOriginSelect}
@@ -265,19 +264,12 @@ export default class Search extends React.Component {
                     <SubmitSearch 
                     handleSubmit = {this.handleSubmit}
                     itineraries = {this.state.itineraries}
-                    //isSubmitted = {this.state.isSubmitted}
                     />
                 :null}
                 {this.state.isSubmitted?
-                    this.state.itineraries.map((value) => 
-                    (<div key={value.ID}>
-                        <center>
-                        <p>Total price (including fees): <br></br> ${value.Price}</p>
-                        <p>Number of Legs: {value.numberOfLegs}</p>
-                        <p>Departure Time:<br></br> {moment(value.Departure_Date_1).format('MMM Do YYYY, h:mm a')}</p>
-                        <p>Arrival Time: <br></br> {moment(value.Arrival_Date_1).format('MMM Do YYYY, h:mm a')}</p><br></br>
-                        </center>
-                    </div>))
+                    <Results
+                    itineraries = {this.state.itineraries}
+                    />
                 :null}
                 </div> 
                 </div>
