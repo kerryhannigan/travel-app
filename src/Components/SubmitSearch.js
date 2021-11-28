@@ -1,7 +1,12 @@
 import React from 'react';
 import '../CSS/index.css';
+import moment from 'moment';
 
 export default class SubmitSearch extends React.Component { 
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.itineraries !== this.props.itineraries;
+    }
 
     render() {
         return (

@@ -265,16 +265,20 @@ export default class Search extends React.Component {
                     <SubmitSearch 
                     handleSubmit = {this.handleSubmit}
                     itineraries = {this.state.itineraries}
-                    isSubmitted = {this.state.isSubmitted}
+                    //isSubmitted = {this.state.isSubmitted}
                     />
                 :null}
-                {this.state.itineraries.map((value) => 
+                {this.state.isSubmitted?
+                    this.state.itineraries.map((value) => 
                     (<div key={value.ID}>
-                        <p>Total price (including fees): ${value.Price}</p>
-                        <p>Departure Time: {value.Departure_Date_1}</p>
-                        <p>Arrival Time: {value.Arrival_Date_1}</p><br></br>
-                    </div>)
-                )}
+                        <center>
+                        <p>Total price (including fees): <br></br> ${value.Price}</p>
+                        <p>Number of Legs: {value.numberOfLegs}</p>
+                        <p>Departure Time:<br></br> {moment(value.Departure_Date_1).format('MMM Do YYYY, h:mm a')}</p>
+                        <p>Arrival Time: <br></br> {moment(value.Arrival_Date_1).format('MMM Do YYYY, h:mm a')}</p><br></br>
+                        </center>
+                    </div>))
+                :null}
                 </div> 
                 </div>
                 </div>
