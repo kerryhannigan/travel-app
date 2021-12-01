@@ -8,7 +8,7 @@ export default class Results extends React.Component {
             {this.props.itineraries.length !== 0 ?
                 this.props.itineraries.map((value) => 
                 (<div key={value.ID}
-                className="max-w-full bg-white flex flex-col rounded overflow-hidden shadow-lg">
+                className="max-w-full bg-white flex flex-col rounded overflow-hidden shadow-lg m-6">
                     <center>
                     <br></br>
                     <p>Total price (including fees): ${value.Price}</p>
@@ -25,7 +25,7 @@ export default class Results extends React.Component {
                 <br></br>
                 </center>
             </div>}
-        </div>  
+        </div>
         );          
     }
 }
