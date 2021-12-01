@@ -93,7 +93,8 @@ export default class Search extends React.Component {
         this.setState({
             showDestinationSearch: false,
             isSubmitted: false,
-            showButton: false
+            showButton: false,
+            airportCodes: [],
         })
       }
     }
@@ -101,12 +102,12 @@ export default class Search extends React.Component {
     handleDestinationSelect = (event) => {
         this.setState({
             destination : event.target.value,
+            showButton  : true,
         })
         this.getAirportCode(event.target.value)
         if (event.target.value === '') {
             let temp = []
             temp[0] = this.state.airportCodes[0];
-            temp[1] = '';
             this.setState({
                 showButton: false,
                 isSubmitted: false,
@@ -164,7 +165,6 @@ export default class Search extends React.Component {
             let results = res.data;
             results = (Object.values(results)); 
             this.setState({ results }, () => { this.parseData() }); 
-            console.log(results);
         });
         event.preventDefault();
     }
@@ -180,58 +180,65 @@ export default class Search extends React.Component {
         var segId = '';
         var segId1 = '';
         var segId2 = '';
-        for (var i = 0; i < 5; i++) {
-            var totalPrice = pricedItinerary[i].pricingInfo.totalFare; // get the price
-            var id = pricedItinerary[i].id;
-            var slices = pricedItinerary[i].slice;
-            for (var j = 0; j < slices.length; j++) {
-                var sliceId = slices[j].uniqueSliceId; // get the slice id
-            }
-            for (var k = 0; k < allSlices.length; k++) {
-                if (sliceId === allSlices[k].uniqueSliceId) { // use slice id to get the segments
-                    var segments = allSlices[k].segment;
-                    if (segments.length === 2) {
-                        segId1 = segments[0].uniqueSegId; // store the unique segment ids
-                        segId2 = segments[1].uniqueSegId;
-                    } 
-                    else if (segments.length === 1) {
-                        segId = segments[0].uniqueSegId;
+        if (pricedItinerary != null && pricedItinerary[0].pricingInfo !== undefined)
+        {
+            for (var i = 0; i < 5; i++) {
+                var totalPrice = pricedItinerary[i].pricingInfo.totalFare; // get the price
+                var id = pricedItinerary[i].id;
+                var slices = pricedItinerary[i].slice;
+                for (var j = 0; j < slices.length; j++) {
+                    var sliceId = slices[j].uniqueSliceId; // get the slice id
+                }
+                for (var k = 0; k < allSlices.length; k++) {
+                    if (sliceId === allSlices[k].uniqueSliceId) { // use slice id to get the segments
+                        var segments = allSlices[k].segment;
+                        if (segments.length === 2) {
+                            segId1 = segments[0].uniqueSegId; // store the unique segment ids
+                            segId2 = segments[1].uniqueSegId;
+                        } 
+                        else if (segments.length === 1) {
+                            segId = segments[0].uniqueSegId;
+                        }
                     }
                 }
-            }
-            for (var m = 0; m < allSegments.length; m++) { // loop through the segments, match up the segment ids, get the date/times
-                if (segId1 === allSegments[m].uniqueSegId) {
-                    arrivalDateTime1 = allSegments[m].arrivalDateTime;   
-                    departureDateTime1 = allSegments[m].departDateTime; 
-                    var origin1 = allSegments[m].origAirport;
-                    var destination1 = allSegments[m].destAirport; 
+                for (var m = 0; m < allSegments.length; m++) { // loop through the segments, match up the segment ids, get the date/times
+                    if (segId1 === allSegments[m].uniqueSegId) {
+                        arrivalDateTime1 = allSegments[m].arrivalDateTime;   
+                        departureDateTime1 = allSegments[m].departDateTime; 
+                        var origin1 = allSegments[m].origAirport;
+                        var destination1 = allSegments[m].destAirport; 
+                    }
+                    if (segId2 === allSegments[m].uniqueSegId) {
+                        arrivalDateTime2 = allSegments[m].arrivalDateTime;   
+                        departureDateTime2 = allSegments[m].departDateTime; 
+                        var origin2 = allSegments[m].origAirport;
+                        var destination2 = allSegments[m].destAirport;
+                    }   
+                    else if (segId === allSegments[m].uniqueSegId) {
+                        arrivalDateTime1 = allSegments[m].arrivalDateTime;   
+                        departureDateTime1 = allSegments[m].departDateTime; 
+                        origin1 = allSegments[m].origAirport;
+                        destination1 = allSegments[m].destAirport;
+                    }
                 }
-                if (segId2 === allSegments[m].uniqueSegId) {
-                    arrivalDateTime2 = allSegments[m].arrivalDateTime;   
-                    departureDateTime2 = allSegments[m].departDateTime; 
-                    var origin2 = allSegments[m].origAirport;
-                    var destination2 = allSegments[m].destAirport;
-                }   
-                else if (segId === allSegments[m].uniqueSegId) {
-                    arrivalDateTime1 = allSegments[m].arrivalDateTime;   
-                    departureDateTime1 = allSegments[m].departDateTime; 
-                    origin1 = allSegments[m].origAirport;
-                    destination1 = allSegments[m].destAirport;
+                if (segments.length === 2 && this.state.itineraries.length < 5) {
+                    var itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Departure_Date_2": departureDateTime2, "Arrival_Date_2": arrivalDateTime2, "Origin1" : origin1, "Destination1" : destination1, "Origin2" : origin2, "Destination2" : destination2};
+                    this.state.itineraries.push(itinerary);
                 }
-            }
-            if (segments.length === 2 && this.state.itineraries.length < 5) {
-                var itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Departure_Date_2": departureDateTime2, "Arrival_Date_2": arrivalDateTime2, "Origin1" : origin1, "Destination1" : destination1, "Origin2" : origin2, "Destination2" : destination2};
-                this.state.itineraries.push(itinerary);
-            }
-            else if (segments.length === 1 && this.state.itineraries.length < 5) {
-                itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Origin1" : origin1, "Destination1" : destination1, "Origin2" : null, "Destination2" : null};
-                this.state.itineraries.push(itinerary);
+                else if (segments.length === 1 && this.state.itineraries.length < 5) {
+                    itinerary = {"Price": totalPrice, "ID": id, "Departure_Date_1": departureDateTime1, "Arrival_Date_1": arrivalDateTime1, "Origin1" : origin1, "Destination1" : destination1, "Origin2" : null, "Destination2" : null};
+                    this.state.itineraries.push(itinerary);
+                }
             }
         }
-        console.log(this.state.itineraries);
+        else
+        {
+            console.log("No results");
+        }
         this.setState({
             itineraries: this.state.itineraries,
         }, () => {this.setState({isSubmitted: true})});
+
     }
 
     render () {

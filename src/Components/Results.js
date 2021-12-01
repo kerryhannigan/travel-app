@@ -4,8 +4,9 @@ import moment from "moment";
 export default class Results extends React.Component {
     render() {
         return (
-
-            this.props.itineraries.map((value) => 
+        <div>
+            {this.props.itineraries.length !== 0 ?
+                this.props.itineraries.map((value) => 
                 (<div key={value.ID}
                 className="max-w-full bg-white flex flex-col rounded overflow-hidden shadow-lg">
                     <center>
@@ -16,8 +17,15 @@ export default class Results extends React.Component {
                     {value.Origin2 !== null ? <p>Departure from {value.Origin2}: {moment(value.Departure_Date_2).format('MMM Do YYYY, h:mm a')}</p> : null}
                     {value.Destination2 !== null ? <p>Arrival at {value.Destination2}: {moment(value.Arrival_Date_2).format('MMM Do YYYY, h:mm a')}</p> : null}<br></br>
                     </center>
-                </div>))     
-                );
-        
+                </div>))                
+            :<div className="max-w-full bg-white flex flex-col rounded overflow-hidden shadow-lg"> 
+                <center>
+                <br></br>
+                    <p>No Matching Results</p>
+                <br></br>
+                </center>
+            </div>}
+        </div>  
+        );          
     }
 }
