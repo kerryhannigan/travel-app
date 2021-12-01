@@ -54,7 +54,7 @@ export default class Search extends React.Component {
         {
           this.getPlacesList(event.target.value)
           event.preventDefault();
-        }, 500)
+        }, 300)
     }
   
     getPlacesList = (searchValue) => { 
@@ -114,7 +114,7 @@ export default class Search extends React.Component {
         }
     }
   
-    getAirportCode = (name) => { // name is search term passed from onchange event
+    getAirportCode = (name) => { // name is search term passed from search bars
         let temp = this.state.airportCodes;
         for (let i = 0; i < this.state.placeNames.length; i++)
         {

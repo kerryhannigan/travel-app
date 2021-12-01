@@ -7,7 +7,7 @@ import 'react-day-picker/lib/style.css';
 class App extends Component {
     render () {
         return (
-            <div>
+            <div className = "h-screen bg-green-50">
                 <Header />
                 <Search />
             </div>
