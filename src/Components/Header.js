@@ -1,4 +1,3 @@
-//import '../CSS/App.css';
 import '../CSS/index.css';
 
 const Header = () => {

@@ -1,5 +1,3 @@
-// search will manage state for calendar, origin search, destination search, and search components
-
 import React from 'react';
 import Calendar from './Calendar';
 import 'react-day-picker/lib/style.css';
@@ -249,7 +247,7 @@ export default class Search extends React.Component {
                 <div className="py-2">
                 <div className="flex flex-col w-96 space-y-2">
                 <center>
-                <label id="default" className="text-gray-700 select-none font-medium">Select Your Travel Dates</label>
+                <label id="default" className="text-gray-700 select-none font-medium">Select Your Travel Date</label>
                 <Calendar 
                 handleDayClick = {this.handleDayClick}
                 handleResetClick = {this.handleResetClick}
