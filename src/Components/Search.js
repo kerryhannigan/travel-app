@@ -110,6 +110,7 @@ export default class Search extends React.Component {
                 showButton: false,
                 isSubmitted: false,
                 airportCodes: temp,
+                results: [],
             })
         }
     }
@@ -143,6 +144,7 @@ export default class Search extends React.Component {
     }
 
     handleSubmit = (event) => {
+        this.clearState();
         var url = `https://priceline-com-provider.p.rapidapi.com/v1/flights/search`
         axios.get(url, 
         {
@@ -163,6 +165,7 @@ export default class Search extends React.Component {
             let results = res.data;
             results = (Object.values(results)); 
             this.setState({ results }, () => { this.parseData() }); 
+            console.log(results);
         });
         event.preventDefault();
     }
@@ -178,9 +181,9 @@ export default class Search extends React.Component {
         var segId = '';
         var segId1 = '';
         var segId2 = '';
-        if (pricedItinerary != null && pricedItinerary[0].pricingInfo !== undefined)
+        if (pricedItinerary !== null)
         {
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < 5 && i < pricedItinerary.length; i++) {
                 var totalPrice = pricedItinerary[i].pricingInfo.totalFare; // get the price
                 var id = pricedItinerary[i].id;
                 var slices = pricedItinerary[i].slice;
